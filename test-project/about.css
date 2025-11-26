@@ -1,0 +1,60 @@
+/* About page specific styles */
+/* This should be prioritized when viewing about.html */
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 3rem;
+  text-align: center;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.about-info {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.info-text {
+  font-size: 1.2rem;
+  color: #333;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.footer {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 1.5rem;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.footer-text {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}

@@ -1,0 +1,25 @@
+/* Component styles - should be considered after same-folder files */
+
+/* Override some global styles for specific components */
+.container {
+  border: 2px solid #007bff;
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+}
+
+/* Add component-specific styles */
+.hero {
+  border: 3px solid #28a745;
+}
+
+.hero-title {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Component buttons */
+.btn-primary {
+  border-radius: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+  border: 2px solid #dc3545;
+}
