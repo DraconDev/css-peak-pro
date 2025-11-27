@@ -102,14 +102,6 @@ export class CSSParser {
 
         const cssFiles: string[] = [];
 
-        if (scopingMode === "global") {
-            // Search entire workspace for CSS files
-            return this.findCSSFilesInWorkspace(
-                workspacePath,
-                cssFileExtensions
-            );
-        }
-
         // Helper to check for matching files based on patterns
         const checkPatterns = (dir: string) => {
             const files: string[] = [];
@@ -127,6 +119,14 @@ export class CSSParser {
             }
             return files;
         };
+
+        if (scopingMode === "global") {
+            // Search entire workspace for CSS files
+            return this.findCSSFilesInWorkspace(
+                workspacePath,
+                cssFileExtensions
+            );
+        }
 
         if (scopingMode === "filename") {
             // Find CSS files matching patterns (any extension)
@@ -146,8 +146,22 @@ export class CSSParser {
         }
 
         // Smart mode (default) - combination with fallback
-        // Priority 1: Matching patterns in same folder (highest priority)
-        cssFiles.push(...checkPatterns(currentDir));
+
+        // Priority 0: Explicitly linked/imported CSS files (Highest Priority)
+        try {
+            const content = fs.readFileSync(currentFilePath, "utf8");
+            const linkedFiles = this.findLinkedCSSFiles(
+                content,
+                currentFilePath
+            );
+            cssFiles.push(...linkedFiles);
+        } catch (error) {
+            console.error("Error reading current file for imports:", error);
+        }
+
+        // Priority 1: Matching patterns in same folder
+        const patternFiles = checkPatterns(currentDir);
+        cssFiles.push(...patternFiles.filter((f) => !cssFiles.includes(f)));
 
         // Priority 2: Same folder, any name
         for (const ext of cssFileExtensions) {
@@ -186,6 +200,69 @@ export class CSSParser {
         }
 
         return cssFiles;
+    }
+
+    /**
+     * Find CSS files that are explicitly linked or imported in the content
+     */
+    private findLinkedCSSFiles(
+        content: string,
+        currentFilePath: string
+    ): string[] {
+        const linkedFiles: string[] = [];
+        const currentDir = path.dirname(currentFilePath);
+
+        // HTML <link> tags
+        // Matches <link ... href="style.css" ...> or <link ... href='style.css' ...>
+        const linkRegex =
+            /<link[^>]*href=["']([^"']+\.(?:css|scss|sass|less))["'][^>]*>/gi;
+        let match;
+        while ((match = linkRegex.exec(content)) !== null) {
+            const href = match[1];
+            if (href) {
+                const absolutePath = path.resolve(currentDir, href);
+                if (fs.existsSync(absolutePath)) {
+                    linkedFiles.push(absolutePath);
+                }
+            }
+        }
+
+        // JS/TS imports
+        // Matches import ... from './style.css' or import './style.css'
+        const importRegex =
+            /import\s+(?:[^"']+\s+from\s+)?["']([^"']+\.(?:css|scss|sass|less))["']/gi;
+        while ((match = importRegex.exec(content)) !== null) {
+            const importPath = match[1];
+            if (importPath) {
+                // Handle webpack-style imports like '~bootstrap/...' or simple relative paths
+                // For now, we'll focus on relative paths starting with . or /
+                if (importPath.startsWith(".") || importPath.startsWith("/")) {
+                    const absolutePath = path.resolve(currentDir, importPath);
+                    if (fs.existsSync(absolutePath)) {
+                        linkedFiles.push(absolutePath);
+                    }
+                }
+            }
+        }
+
+        // JS/TS require
+        // Matches require('./style.css')
+        const requireRegex =
+            /require\(["']([^"']+\.(?:css|scss|sass|less))["']\)/gi;
+        while ((match = requireRegex.exec(content)) !== null) {
+            const requirePath = match[1];
+            if (
+                requirePath &&
+                (requirePath.startsWith(".") || requirePath.startsWith("/"))
+            ) {
+                const absolutePath = path.resolve(currentDir, requirePath);
+                if (fs.existsSync(absolutePath)) {
+                    linkedFiles.push(absolutePath);
+                }
+            }
+        }
+
+        return linkedFiles;
     }
 
     /**
