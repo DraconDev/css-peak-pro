@@ -165,14 +165,35 @@ export class CSSParser {
     workspacePath: string,
     cssFileExtensions: string[]
   ): string[] {
-    const cssFiles: string[] = [];
+    const config = vscode.workspace.getConfiguration("cssPeakPro");
+    const scanDepth = config.get("scanDepth", 10);
+    const excludeDirectories: string[] = config.get("excludeDirectories", [
+      "node_modules",
+      ".git",
+      "target",
+      "dist",
+      "build",
+      ".vscode",
+    ]);
 
-    // Recursive function to search all directories
-    const searchDirectory = (dir: string): void => {
+    const cssFiles: string[] = [];
+    let currentDepth = 0;
+
+    // Recursive function to search directories with depth control and exclusions
+    const searchDirectory = (dir: string, depth: number): void => {
+      if (depth >= scanDepth) {
+        return; // Stop if we've reached the maximum scan depth
+      }
+
       try {
         const items = fs.readdirSync(dir);
 
         for (const item of items) {
+          // Check if directory should be excluded
+          if (excludeDirectories.includes(item)) {
+            continue;
+          }
+
           const fullPath = path.join(dir, item);
           const stat = fs.statSync(fullPath);
 
@@ -182,13 +203,11 @@ export class CSSParser {
             if (cssFileExtensions.includes(ext)) {
               cssFiles.push(fullPath);
             }
-          } else if (
-            stat.isDirectory() &&
-            !item.startsWith(".") &&
-            item !== "node_modules"
-          ) {
-            // Recursively search subdirectories (excluding hidden and node_modules)
-            searchDirectory(fullPath);
+          } else if (stat.isDirectory()) {
+            // Recursively search subdirectories (excluding hidden dirs)
+            if (!item.startsWith(".")) {
+              searchDirectory(fullPath, depth + 1);
+            }
           }
         }
       } catch (error) {
@@ -196,7 +215,7 @@ export class CSSParser {
       }
     };
 
-    searchDirectory(workspacePath);
+    searchDirectory(workspacePath, currentDepth);
     return cssFiles;
   }
 

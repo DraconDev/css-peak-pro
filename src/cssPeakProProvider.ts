@@ -140,6 +140,56 @@ export class CSSPeakProProvider implements vscode.HoverProvider {
   }
 
   /**
+   * Enhanced selector detection with multi-word support
+   */
+  private getEnhancedSelectors(
+    word: string,
+    document: vscode.TextDocument,
+    position: vscode.Position
+  ): string[] {
+    const selectors = [word]; // Always include the original word
+    const enableMultiWordDetection = vscode.workspace
+      .getConfiguration("cssPeakPro")
+      .get("enableMultiWordDetection", true);
+
+    if (!enableMultiWordDetection) {
+      return selectors;
+    }
+
+    // Look for common prefix/suffix patterns that might indicate related classes
+    // For example: "btn-primary" might have related "btn" or "primary" rules
+
+    // Split by common separators but keep the full word
+    const cleanWord = word.replace(/^[.#]/, ""); // Remove . or # prefix
+
+    // Look for hyphenated compounds (keep as single entity)
+    if (cleanWord.includes("-")) {
+      const parts = cleanWord.split("-");
+
+      // Add each part as potential selector if they look like CSS classes
+      for (const part of parts) {
+        if (part.length > 2 && /^[a-zA-Z][a-zA-Z0-9]*$/.test(part)) {
+          // Avoid common words that might give false positives
+          const commonWords = [
+            "the",
+            "and",
+            "for",
+            "with",
+            "from",
+            "this",
+            "that",
+          ];
+          if (!commonWords.includes(part.toLowerCase())) {
+            selectors.push(`.${part}`);
+          }
+        }
+      }
+    }
+
+    return selectors;
+  }
+
+  /**
    * Check if the word is a potential CSS selector
    */
   private isPotentialSelector(word: string): boolean {
