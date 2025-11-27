@@ -162,11 +162,19 @@ export class CSSParser {
         // Priority 3: Common CSS directory patterns
         for (const commonPath of commonDirectories) {
             const fullPath = path.join(workspacePath, commonPath);
+            console.log(
+                `Checking common path: ${fullPath}, exists: ${fs.existsSync(
+                    fullPath
+                )}`
+            );
             if (fs.existsSync(fullPath)) {
                 for (const ext of cssFileExtensions) {
                     const filesInCommon = this.findFilesInDirectory(
                         fullPath,
                         `*.${ext}`
+                    );
+                    console.log(
+                        `Found ${filesInCommon.length} files in ${commonPath}`
                     );
                     cssFiles.push(
                         ...filesInCommon.filter((f) => !cssFiles.includes(f))
