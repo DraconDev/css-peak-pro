@@ -303,7 +303,7 @@ export class CSSParser {
     /**
      * Check if a CSS selector matches the given element selector
      */
-    private selectorMatches(
+    public selectorMatches(
         cssSelector: string,
         elementSelector: string
     ): boolean {
