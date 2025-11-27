@@ -135,7 +135,34 @@ All settings are under `CSS Peak Pro` in VSCode settings. Here are the key ones:
 
 ## Usage Examples
 
-### Example 1: React with CSS Modules
+### Example 1: Smart Import Detection (NEW!)
+
+```html
+<!-- index.html -->
+<html>
+    <head>
+        <link rel="stylesheet" href="theme.css" />
+    </head>
+    <body>
+        <button class="primary">Click me</button>
+    </body>
+</html>
+```
+
+When you hover over `"primary"`, you'll see styles from `theme.css` **first**, even if there's a `index.css` in the same folder. The extension detects the `<link>` tag and prioritizes the linked file.
+
+This also works with JS/TS imports:
+
+```tsx
+// Button.tsx
+import "./Button.styles.css";
+
+export function Button() {
+    return <button className="primary">Click me</button>;
+}
+```
+
+### Example 2: React with CSS Modules
 
 ```tsx
 // Button.tsx
@@ -146,12 +173,13 @@ export function Button() {
 
 Hover over `"primary"` to see styles from:
 
-1. `Button.module.css` (if pattern `${filename}.module` is enabled)
-2. `Button.css`
-3. Any CSS in the same folder
-4. Common directories like `src/styles/`
+1. Linked files (if any `<link>` or `import` is found)
+2. `Button.module.css` (if pattern `${filename}.module` is enabled)
+3. `Button.css`
+4. Any CSS in the same folder
+5. Common directories like `src/styles/`
 
-### Example 2: Custom Patterns
+### Example 3: Custom Patterns
 
 Add to settings:
 
@@ -167,7 +195,7 @@ Add to settings:
 
 Now `HomePage.tsx` will also check for `HomePage-styles.css`!
 
-### Example 3: Custom Common Directory
+### Example 4: Custom Common Directory
 
 ```json
 {
@@ -212,7 +240,8 @@ Smart mode will now also search these custom directories.
 ## What's New in 2.0
 
 -   ✨ **HTML Peak**: Find where CSS selectors are used (Shift+F12 from CSS files)
--   🎨 **Better Formatting**: Syntax-highlighted, clean hover popups
+-   🎯 **Smart Import Detection**: Automatically prioritizes CSS files you actually import/link
+-   🎨 **Better Formatting**: Clean, syntax-highlighted hover popups
 -   🔧 **Configurable Patterns**: `fileNamePatterns` and `commonDirectories` settings
 -   🐛 **Fixed Selector Matching**: No-prefix classes now work (e.g., hovering `container` finds `.container`)
 -   📦 **Smaller Package**: Reduced from 10MB to 1.4MB
