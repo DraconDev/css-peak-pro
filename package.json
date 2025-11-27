@@ -20,6 +20,7 @@
     "Extension Packs"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "workspaceContains:**/*.css",
     "workspaceContains:**/*.scss",
     "workspaceContains:**/*.sass",
