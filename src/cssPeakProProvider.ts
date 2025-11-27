@@ -100,7 +100,7 @@ export class CSSPeakProProvider implements vscode.HoverProvider {
 
         // Display each file's rules
         rulesByFile.forEach((fileRules, fileName) => {
-            content.appendText(`----- ${fileName} -----\n`);
+            content.appendText(`______${fileName}______\n`);
 
             fileRules.forEach((rule) => {
                 let cssBlock = `${rule.selector} {\n`;
