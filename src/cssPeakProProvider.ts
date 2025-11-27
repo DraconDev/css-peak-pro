@@ -88,8 +88,6 @@ export class CSSPeakProProvider implements vscode.HoverProvider {
     ): vscode.MarkdownString {
         const content = new vscode.MarkdownString();
 
-        content.appendText(`CSS Rules for "${selector}":\n\n`);
-
         // Group rules by file
         const rulesByFile = new Map<string, CSSRule[]>();
         rules.forEach((rule) => {
