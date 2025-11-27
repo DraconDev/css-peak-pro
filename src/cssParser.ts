@@ -72,6 +72,18 @@ export class CSSParser {
             "enableFallbackToGlobal",
             true
         );
+        const commonDirectories: string[] = config.get("commonDirectories", [
+            "css",
+            "styles",
+            "src/styles",
+            "src/css",
+            "assets/css",
+        ]);
+        const fileNamePatterns: string[] = config.get("fileNamePatterns", [
+            "${filename}",
+            "${filename}.module",
+            "${filename}.styles",
+        ]);
 
         const workspaceFolder = vscode.workspace.getWorkspaceFolder(
             vscode.Uri.file(currentFilePath)
@@ -97,18 +109,27 @@ export class CSSParser {
             );
         }
 
-        if (scopingMode === "filename") {
-            // Find CSS files with the same name (any extension)
-            for (const ext of cssFileExtensions) {
-                const matchingFile = path.join(
-                    currentDir,
-                    `${currentFileName}.${ext}`
+        // Helper to check for matching files based on patterns
+        const checkPatterns = (dir: string) => {
+            const files: string[] = [];
+            for (const pattern of fileNamePatterns) {
+                const baseName = pattern.replace(
+                    "${filename}",
+                    currentFileName
                 );
-                if (fs.existsSync(matchingFile)) {
-                    cssFiles.push(matchingFile);
+                for (const ext of cssFileExtensions) {
+                    const matchingFile = path.join(dir, `${baseName}.${ext}`);
+                    if (fs.existsSync(matchingFile)) {
+                        files.push(matchingFile);
+                    }
                 }
             }
-            return cssFiles;
+            return files;
+        };
+
+        if (scopingMode === "filename") {
+            // Find CSS files matching patterns (any extension)
+            return checkPatterns(currentDir);
         }
 
         if (scopingMode === "folder") {
@@ -124,16 +145,8 @@ export class CSSParser {
         }
 
         // Smart mode (default) - combination with fallback
-        // Priority 1: Same name, same folder (highest priority)
-        for (const ext of cssFileExtensions) {
-            const matchingFile = path.join(
-                currentDir,
-                `${currentFileName}.${ext}`
-            );
-            if (fs.existsSync(matchingFile)) {
-                cssFiles.push(matchingFile);
-            }
-        }
+        // Priority 1: Matching patterns in same folder (highest priority)
+        cssFiles.push(...checkPatterns(currentDir));
 
         // Priority 2: Same folder, any name
         for (const ext of cssFileExtensions) {
@@ -147,14 +160,7 @@ export class CSSParser {
         }
 
         // Priority 3: Common CSS directory patterns
-        const commonPaths = [
-            "css",
-            "styles",
-            "src/styles",
-            "src/css",
-            "assets/css",
-        ];
-        for (const commonPath of commonPaths) {
+        for (const commonPath of commonDirectories) {
             const fullPath = path.join(workspacePath, commonPath);
             if (fs.existsSync(fullPath)) {
                 for (const ext of cssFileExtensions) {
