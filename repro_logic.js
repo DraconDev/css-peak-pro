@@ -7,41 +7,49 @@ function selectorMatches(cssSelector, elementSelector) {
         return true;
     }
 
-    // Class selector matching
-    const classMatches = cleanElementSelector.match(/\.([a-zA-Z0-9-_]+)/g);
-    if (classMatches) {
-        for (const classMatch of classMatches) {
-            const className = classMatch.substring(1);
+    // If the element selector has no prefix (e.g. "container"), treat it as a potential class or ID
+    let potentialClass = cleanElementSelector;
+    let potentialId = cleanElementSelector;
+
+    if (cleanElementSelector.startsWith(".")) {
+        potentialClass = cleanElementSelector.substring(1);
+    } else if (cleanElementSelector.startsWith("#")) {
+        potentialId = cleanElementSelector.substring(1);
+    }
+
+    // Check for class match
+    if (
+        cleanCssSelector.includes(`.${potentialClass}`) ||
+        cleanCssSelector.includes(`[class*="${potentialClass}"]`) ||
+        cleanCssSelector.includes(`[class~="${potentialClass}"]`)
+    ) {
+        return true;
+    }
+
+    // Check for ID match
+    if (cleanCssSelector.includes(`#${potentialId}`)) {
+        return true;
+    }
+
+    // Element selector matching (only if it looks like an element tag)
+    if (
+        !cleanElementSelector.startsWith(".") &&
+        !cleanElementSelector.startsWith("#")
+    ) {
+        const elementMatch = cleanElementSelector.match(
+            /^([a-zA-Z][a-zA-Z0-9]*)/
+        );
+        if (elementMatch) {
+            const elementName = elementMatch[1];
             if (
-                cleanCssSelector.includes(`.${className}`) ||
-                cleanCssSelector.includes(`[class*="${className}"]`) ||
-                cleanCssSelector.includes(`[class~="${className}"]`)
+                cleanCssSelector.startsWith(elementName) ||
+                cleanCssSelector.includes(` ${elementName}`) ||
+                cleanCssSelector.includes(`>${elementName}`) ||
+                cleanCssSelector.includes(`+${elementName}`) ||
+                cleanCssSelector.includes(`~${elementName}`)
             ) {
                 return true;
             }
-        }
-    }
-
-    // ID selector matching
-    const idMatches = cleanElementSelector.match(/#([a-zA-Z0-9-_]+)/g);
-    if (idMatches) {
-        for (const idMatch of idMatches) {
-            const idName = idMatch.substring(1);
-            if (cleanCssSelector.includes(`#${idName}`)) {
-                return true;
-            }
-        }
-    }
-
-    // Element selector matching
-    const elementMatch = cleanElementSelector.match(/^([a-zA-Z][a-zA-Z0-9]*)/);
-    if (elementMatch) {
-        const elementName = elementMatch[1];
-        if (
-            cleanCssSelector.includes(elementName) &&
-            !cleanCssSelector.includes(".")
-        ) {
-            return true;
         }
     }
 
