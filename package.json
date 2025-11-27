@@ -20,12 +20,11 @@
     "Extension Packs"
   ],
   "activationEvents": [
-    "onCommand:cssPeakPro.showCSS",
-    "onLanguage:html",
-    "onLanguage:jsx",
-    "onLanguage:tsx",
-    "onLanguage:vue",
-    "onLanguage:rust"
+    "workspaceContains:**/*.css",
+    "workspaceContains:**/*.scss",
+    "workspaceContains:**/*.sass",
+    "workspaceContains:**/*.less",
+    "onCommand:cssPeakPro.showCSS"
   ],
   "main": "./out/extension.js",
   "contributes": {
