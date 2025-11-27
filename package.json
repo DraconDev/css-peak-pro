@@ -2,7 +2,7 @@
   "name": "css-peak-pro",
   "displayName": "CSS Peak Pro",
   "description": "Enhanced CSS Peak extension with smart scoping that shows only relevant CSS for elements based on configurable modes - Smart, Global, Folder, or Filename matching",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "publisher": "DraconDev",
   "repository": {
     "type": "git",

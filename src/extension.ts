@@ -4,11 +4,12 @@ import { CSSParser } from "./cssParser";
 import { CSSPeakProProvider } from "./cssPeakProProvider";
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log("CSS Peak Pro extension is now active");
+  console.log("CSS Peak Pro extension is now ACTIVE");
 
   // Get configuration
   const config = vscode.workspace.getConfiguration("cssPeakPro");
   const enabled = config.get("enabled", true);
+  console.log(`CSS Peak Pro: Extension enabled = ${enabled}`);
 
   // If extension is disabled, return early
   if (!enabled) {
@@ -18,6 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Initialize the CSS parser
   const cssParser = new CSSParser();
+  console.log("CSS Peak Pro: CSS parser initialized");
 
   // Get supported languages from configuration
   const supportedLanguages: string[] = config.get("peekFromLanguages", [
@@ -29,6 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
     "vue",
     "rust",
   ]);
+  console.log(
+    `CSS Peak Pro: Registered for languages: ${supportedLanguages.join(", ")}`
+  );
 
   // Register the hover provider for supported languages
   const hoverProvider = new CSSPeakProProvider(cssParser);
@@ -36,9 +41,13 @@ export function activate(context: vscode.ExtensionContext) {
     supportedLanguages,
     hoverProvider
   );
+  console.log("CSS Peak Pro: Hover provider registered");
 
   // Register the definition provider for Ctrl+Click go-to-definition (configurable)
   const enableGoToDefinition = config.get("enableGoToDefinition", true);
+  console.log(
+    `CSS Peak Pro: Go-to-definition enabled = ${enableGoToDefinition}`
+  );
 
   let definitionProviderRegistration: vscode.Disposable | null = null;
 
@@ -49,6 +58,9 @@ export function activate(context: vscode.ExtensionContext) {
         supportedLanguages,
         definitionProvider
       );
+    console.log("CSS Peak Pro: Definition provider registered");
+  } else {
+    console.log("CSS Peak Pro: Definition provider disabled");
   }
 
   // Add disposables to context
@@ -71,6 +83,7 @@ export function activate(context: vscode.ExtensionContext) {
       "CSS Peak Pro - Enhanced CSS navigation with smart scoping";
     statusBarItem.show();
     context.subscriptions.push(statusBarItem);
+    console.log("CSS Peak Pro: Status bar item added");
   }
 
   // Watch for configuration changes to dynamically update language support
@@ -84,7 +97,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(configurationChange);
 
   console.log(
-    `CSS Peak Pro activated for languages: ${supportedLanguages.join(", ")}`
+    `CSS Peak Pro activated successfully for languages: ${supportedLanguages.join(
+      ", "
+    )}`
   );
 }
 
