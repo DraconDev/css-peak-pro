@@ -90,3 +90,4 @@ temp/
 *.exe
 *.env
 *.kilocode
+*.vsix
