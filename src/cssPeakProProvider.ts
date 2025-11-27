@@ -15,41 +15,80 @@ export class CSSPeakProProvider implements vscode.HoverProvider {
   ): vscode.ProviderResult<vscode.Hover> {
     const config = vscode.workspace.getConfiguration("cssPeakPro");
     const enableHover = config.get("enableHover", true);
+    const hoverDelay = config.get("hoverDelay", 500);
 
     if (!enableHover) {
       return null;
     }
 
-    const range = document.getWordRangeAtPosition(position);
-    if (!range) {
-      return null;
-    }
+    // Implement hover delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Check if token is cancelled during delay
+        if (token.isCancellationRequested) {
+          resolve(null);
+          return;
+        }
 
-    const word = document.getText(range);
-    if (!word) {
-      return null;
-    }
+        const range = document.getWordRangeAtPosition(position);
+        if (!range) {
+          resolve(null);
+          return;
+        }
 
-    // Only provide hover for potential CSS selectors
-    if (!this.isPotentialSelector(word)) {
-      return null;
-    }
+        const word = document.getText(range);
+        if (!word) {
+          resolve(null);
+          return;
+        }
 
-    const cssRules = this.cssParser.getCSSRulesForSelector(
-      word,
-      document.uri.fsPath
-    );
+        // Only provide hover for potential CSS selectors
+        if (!this.isPotentialSelector(word)) {
+          resolve(null);
+          return;
+        }
 
-    if (cssRules.length === 0) {
-      return null;
-    }
+        // Enhanced multi-word detection for compound selectors
+        const enhancedSelectors = this.getEnhancedSelectors(
+          word,
+          document,
+          position
+        );
 
-    const maxRules = config.get("maxRulesToShow", 10);
-    const relevantRules = cssRules.slice(0, maxRules);
+        const cssRules = this.cssParser.getCSSRulesForSelector(
+          word,
+          document.uri.fsPath
+        );
 
-    const hoverContent = this.createHoverContent(relevantRules, word);
+        // Also search for additional selectors if multi-word detection is enabled
+        const enableMultiWordDetection = config.get(
+          "enableMultiWordDetection",
+          true
+        );
+        if (enableMultiWordDetection && enhancedSelectors.length > 1) {
+          for (const selector of enhancedSelectors.slice(1)) {
+            // Skip the original word
+            const additionalRules = this.cssParser.getCSSRulesForSelector(
+              selector,
+              document.uri.fsPath
+            );
+            cssRules.push(...additionalRules);
+          }
+        }
 
-    return new vscode.Hover(hoverContent, range);
+        if (cssRules.length === 0) {
+          resolve(null);
+          return;
+        }
+
+        const maxRules = config.get("maxRulesToShow", 10);
+        const relevantRules = cssRules.slice(0, maxRules);
+
+        const hoverContent = this.createHoverContent(relevantRules, word);
+
+        resolve(new vscode.Hover(hoverContent, range));
+      }, hoverDelay);
+    });
   }
 
   /**
