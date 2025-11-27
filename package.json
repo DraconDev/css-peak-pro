@@ -2,7 +2,7 @@
   "name": "css-peak-pro",
   "displayName": "CSS Peak Pro",
   "description": "Enhanced CSS Peak extension with smart scoping that shows only relevant CSS for elements based on configurable modes - Smart, Global, Folder, or Filename matching",
-  "version": "1.0.6",
+  "version": "1.0.5",
   "publisher": "DraconDev",
   "repository": {
     "type": "git",
@@ -99,6 +99,11 @@
           "type": "boolean",
           "default": true,
           "description": "🔤 Multi-word Detection: Enable detection of compound CSS selectors like 'card-title' and 'btn-primary'"
+        },
+        "cssPeakPro.enableGoToDefinition": {
+          "type": "boolean",
+          "default": true,
+          "description": "🎯 Go to Definition: Enable Ctrl+Click go-to-definition for CSS selectors (like original CSS Peak)"
         },
         "cssPeakPro.maxRulesToShow": {
           "type": "number",

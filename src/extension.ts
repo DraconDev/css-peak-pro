@@ -16,13 +16,20 @@ export function activate(context: vscode.ExtensionContext) {
     hoverProvider
   );
 
-  // Register the definition provider for Ctrl+Click go-to-definition
-  const definitionProvider = new CSSDefinitionProvider(cssParser);
-  const definitionProviderRegistration =
-    vscode.languages.registerDefinitionProvider(
-      ["html", "jsx", "tsx", "vue", "rust"],
-      definitionProvider
-    );
+  // Register the definition provider for Ctrl+Click go-to-definition (configurable)
+  const config = vscode.workspace.getConfiguration("cssPeakPro");
+  const enableGoToDefinition = config.get("enableGoToDefinition", true);
+
+  let definitionProviderRegistration: vscode.Disposable | null = null;
+
+  if (enableGoToDefinition) {
+    const definitionProvider = new CSSDefinitionProvider(cssParser);
+    definitionProviderRegistration =
+      vscode.languages.registerDefinitionProvider(
+        ["html", "jsx", "tsx", "vue", "rust"],
+        definitionProvider
+      );
+  }
 
   // Register the command
   const command = vscode.commands.registerCommand("cssPeakPro.showCSS", () => {
@@ -46,11 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Add disposables to context
   context.subscriptions.push(hoverProviderRegistration);
-  context.subscriptions.push(definitionProviderRegistration);
+  if (definitionProviderRegistration) {
+    context.subscriptions.push(definitionProviderRegistration);
+  }
   context.subscriptions.push(command);
 
   // Initialize configuration
-  const config = vscode.workspace.getConfiguration("cssPeakPro");
   const showInStatusBar = config.get("showInStatusBar", true);
 
   if (showInStatusBar) {
