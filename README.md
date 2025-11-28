@@ -41,7 +41,7 @@ Works with HTML, React, Vue, Svelte, PHP, Rust templates, and many more - fully 
 
 ## Installation
 
-1. Download the latest `.vsix` from [Releases](https://github.com/DraconDev/css-peak-pro/releases)
+1. Download the latest `.vsix` from [Releases](https://github.com/DraconDev/css-peek-pro/releases)
 2. In VSCode: Extensions → `...` → Install from VSIX
 3. Or build from source: `npm install && npm run build`
 
@@ -249,7 +249,7 @@ Smart mode will now also search these custom directories.
 
 ## Contributing
 
-Found a bug or want a feature? [Open an issue](https://github.com/DraconDev/css-peak-pro/issues)!
+Found a bug or want a feature? [Open an issue](https://github.com/DraconDev/css-peek-pro/issues)!
 
 ## License
 

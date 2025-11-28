@@ -47,7 +47,7 @@ console.log("✅ All required files present");
 // Step 4: Generate package information
 console.log("\n📦 Generating package information...");
 const packageInfo = {
-  name: "css-peak-pro",
+  name: "css-peek-pro",
   version: "1.0.0",
   buildTime: new Date().toISOString(),
   commit: process.env.GIT_COMMIT || "unknown",
